@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  app:
+    image: mediasoup-demo
+    ports:
+      - 3000:3000
+    working_dir: /mediasoup-demo/app
+    privileged: true
+    volumes:
+      - ./docker/config.js:/mediasoup-demo/server/config.js
+      - ./docker/certs:/mediasoup-demo/server/certs
+    env_file:
+      - ./docker/media.env
+    command: ["npm", "start"]
+    networks:
+      mediasoup_demo_net:
+        ipv4_address: 172.88.0.2
+
+  server:
+    image: mediasoup-demo
+    ports:
+      - 4443:4443
+      - 30000-30050:30000-30050/udp
+    working_dir: /mediasoup-demo/server
+    volumes:
+      - ./docker/config.js:/mediasoup-demo/server/config.js
+      - ./docker/certs:/mediasoup-demo/server/certs
+    env_file:
+      - ./docker/media.env
+    command: ["npm", "start"]
+    networks:
+      mediasoup_demo_net:
+        ipv4_address: 172.88.0.3
+
+networks:
+  mediasoup_demo_net:
+    ipam:
+      config:
+        - subnet: 172.88.0.0/16
